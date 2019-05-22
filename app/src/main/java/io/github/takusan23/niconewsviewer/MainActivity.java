@@ -91,20 +91,55 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        switch (id){
-            case R.id.menu_top:
-                startActivity(new Intent(MainActivity.this,NewsActivity.class));
+        switch (id) {
+            case R.id.menu_game:
+                setNewsFragment("https://news.nicovideo.jp/categories/70?rss=2.0");
                 break;
-            case R.id.load:
-                FragmentManager fragmentManager = getSupportFragmentManager() ;
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.content_linearlayout,new NewsListFragment());
-                fragmentTransaction.commit();
+            case R.id.menu_society:
+                setNewsFragment("https://news.nicovideo.jp/categories/10?rss=2.0");
+                break;
+            case R.id.menu_business:
+                setNewsFragment("https://news.nicovideo.jp/categories/20?rss=2.0");
+                break;
+            case R.id.menu_overseas:
+                setNewsFragment("https://news.nicovideo.jp/categories/30?rss=2.0");
+                break;
+            case R.id.menu_sport:
+                setNewsFragment("https://news.nicovideo.jp/categories/40?rss=2.0");
+                break;
+            case R.id.menu_entame:
+                setNewsFragment("https://news.nicovideo.jp/categories/50?rss=2.0");
+                break;
+            case R.id.menu_ranking_one:
+                setNewsFragment("https://news.nicovideo.jp/ranking/comment/hourly?rss=2.0");
+                break;
+            case R.id.menu_ranking_24:
+                setNewsFragment("https://news.nicovideo.jp/ranking/comment?rss=2.0");
+                break;
+            case R.id.menu_all_new:
+                setNewsFragment("https://news.nicovideo.jp/search?q=&rss=2.0&sort=-startTime");
+                break;
+            case R.id.menu_all_comment_count:
+                setNewsFragment("https://news.nicovideo.jp/search?q=&rss=2.0&sort=-commentCount");
+                break;
+            case R.id.menu_all_comment_new:
+                setNewsFragment("https://news.nicovideo.jp/search?q=&rss=2.0&sort=-recentCommentTime");
                 break;
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void setNewsFragment(String url) {
+        Bundle bundle = new Bundle();
+        bundle.putString("url", url);
+        NewsListFragment newsListFragment = new NewsListFragment();
+        newsListFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.content_linearlayout, newsListFragment);
+        fragmentTransaction.commit();
     }
 }

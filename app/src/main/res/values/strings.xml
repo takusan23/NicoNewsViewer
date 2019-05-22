@@ -16,4 +16,21 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="game_anime">Game / Anime</string>
+    <string name="society">Politics / Society</string>
+    <string name="business">Business</string>
+    <string name="overseas">Overseas</string>
+    <string name="sports">Sports</string>
+    <string name="entame">Entertainment</string>
+    <string name="net">Internet / Science</string>
+    <string name="loading">Loading</string>
+    <string name="error">Error</string>
+    <string name="category">Category</string>
+    <string name="ranking">Ranking</string>
+    <string name="all_news">All News</string>
+    <string name="all_news_new">New arrival order</string>
+    <string name="all_news_comment_count">Number of comments</string>
+    <string name="all_news_comment_new">Arrival order of comments</string>
+    <string name="hour">Every hour</string>
+    <string name="hour_24">24hours</string>
 </resources>

@@ -39,6 +39,7 @@ public class NewsListFragment extends Fragment {
     private RecyclerView recyclerView;
     private NewsRecyclerViewAdapter newsRecyclerViewAdapter;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
+    private SnackberProgress snackberProgress;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,12 +63,13 @@ public class NewsListFragment extends Fragment {
         recyclerViewLayoutManager = recyclerView.getLayoutManager();
 
         //リスト読み込み
+        snackberProgress = new SnackberProgress(recyclerView, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("url"));
         getNewsList();
     }
 
     private void getNewsList() {
         Request request = new Request.Builder()
-                .url("https://news.nicovideo.jp/categories/10?rss=2.0")
+                .url(getArguments().getString("url"))
                 .get()
                 .build();
         OkHttpClient okHttpClient = new OkHttpClient();
@@ -77,7 +79,7 @@ public class NewsListFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getContext(), "問題が発生しました。", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -89,7 +91,7 @@ public class NewsListFragment extends Fragment {
                     @Override
                     public void run() {
                         if (!response.isSuccessful()) {
-                            Toast.makeText(getContext(), "問題が発生しました。\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                         } else {
                             //RSSパース？
                             try {
@@ -100,10 +102,12 @@ public class NewsListFragment extends Fragment {
                                 //一時保存
                                 ArrayList<String> titleList = new ArrayList<>();
                                 ArrayList<String> linkList = new ArrayList<>();
+                                ArrayList<String> creatorList = new ArrayList<>();
 
                                 String name = null;
                                 String title = null;
                                 String link = null;
+                                String creator = null;
 
                                 while (count != XmlPullParser.END_DOCUMENT) {
                                     if (count == XmlPullParser.START_TAG) {
@@ -112,6 +116,11 @@ public class NewsListFragment extends Fragment {
                                     } else if (count == XmlPullParser.TEXT) {
                                         //中身を持ってくる
                                         if (name.equals("title")) {
+                                            //ToolBerの文字も変える
+                                            if (title == null) {
+                                                //最初のtltle要素
+                                                getActivity().setTitle(xmlPullParser.getText());
+                                            }
                                             title = xmlPullParser.getText();
                                             titleList.add(title);
                                         }
@@ -119,22 +128,29 @@ public class NewsListFragment extends Fragment {
                                             link = xmlPullParser.getText();
                                             linkList.add(link);
                                         }
+                                        if (name.equals("creator")) {
+                                            creator = xmlPullParser.getText();
+                                            creatorList.add(creator);
+                                        }
                                         name = "";
                                     }
                                     count = xmlPullParser.next();
                                 }
 
                                 //配列作成
-                                for (int i = 0; i < titleList.size(); i++) {
+                                System.out.println(creatorList.size());
+                                for (int i = 0; i < creatorList.size(); i++) {
                                     ArrayList<String> item = new ArrayList<>();
                                     item.add("");
                                     item.add(titleList.get(i));
                                     item.add(linkList.get(i + 1));  //←ずれるので一個足した値を入れる
+                                    item.add(creatorList.get(i));
                                     itemList.add(item);
                                 }
 
                                 //更新
                                 newsRecyclerViewAdapter.notifyDataSetChanged();
+                                snackberProgress.dismissSnackberProgress();
 
                             } catch (XmlPullParserException e) {
                                 e.printStackTrace();

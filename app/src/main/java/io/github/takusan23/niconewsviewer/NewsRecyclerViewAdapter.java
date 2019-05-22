@@ -31,9 +31,9 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
     @Override
     public void onBindViewHolder(@NonNull NewsRecyclerViewAdapter.ViewHolder holder, int position) {
         //冒頭を消す
-        ArrayList<String> item = itemList.get(position += 2);
+        ArrayList<String> item = itemList.get(position += 1);
         //入れる
-        holder.title.setText(item.get(1));
+        holder.title.setText(item.get(1) + "\n" + item.get(3));
         int finalPosition = position;
         holder.title.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,7 +48,7 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
     @Override
     public int getItemCount() {
         //冒頭を消したのでその分引く
-        return (itemList.size() - 2);
+        return (itemList.size() - 1);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">ニコニュースビューワー</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_tools">Tools</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_send">Send</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="business">ビシネス</string>
+    <string name="entame">エンタメ</string>
+    <string name="game_anime">ゲーム・アニメ</string>
+    <string name="net">ネット・科学</string>
+    <string name="overseas">海外</string>
+    <string name="society">政治・社会</string>
+    <string name="sports">スポーツ</string>
+    <string name="loading">取得中</string>
+    <string name="error">問題が発生しました</string>
+    <string name="category">カテゴリ</string>
+    <string name="all_news">すべての記事</string>
+    <string name="ranking">ランキング</string>
+    <string name="all_news_comment_count">コメント数</string>
+    <string name="all_news_comment_new">コメントの新着順</string>
+    <string name="all_news_new">新着順</string>
+    <string name="hour_24">24時間</string>
+    <string name="hour">毎時</string>
+</resources>

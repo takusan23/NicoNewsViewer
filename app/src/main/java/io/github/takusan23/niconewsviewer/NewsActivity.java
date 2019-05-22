@@ -17,6 +17,7 @@ import java.io.IOException;
 public class NewsActivity extends AppCompatActivity {
 
     private TextView textView;
+    private SnackberProgress snackberProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,10 +25,11 @@ public class NewsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_news);
 
         textView = findViewById(R.id.news_activity_textview);
+        snackberProgress = new SnackberProgress(textView, this, getString(R.string.loading) + "\n" + getIntent().getStringExtra("link"));
 
         getNews();
     }
-    
+
     /*しゅとくする*/
     private void getNews() {
         //インターネットから取得するので非同期処理
@@ -48,6 +50,7 @@ public class NewsActivity extends AppCompatActivity {
                             //入れる
                             textView.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT));
                             setTitle(title);
+                            snackberProgress.dismissSnackberProgress();
                         }
                     });
                 } catch (IOException e) {

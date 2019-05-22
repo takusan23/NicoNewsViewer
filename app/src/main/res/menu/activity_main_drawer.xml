@@ -4,14 +4,69 @@
     tools:showIn="navigation_view">
 
     <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/menu_top"
-            android:icon="@drawable/ic_home_black_24dp"
-            android:title="トップ" />
-        <item
-            android:id="@+id/load"
-            android:icon="@drawable/ic_subject_black_24dp"
-            android:title="ニュース" />
+        <item android:title="@string/category">
+            <menu>
+                <item
+                    android:id="@+id/menu_game"
+                    android:icon="@drawable/ic_subject_black_24dp"
+                    android:title="@string/game_anime" />
+                <item
+                    android:id="@+id/menu_society"
+                    android:icon="@drawable/ic_subject_black_24dp"
+                    android:title="@string/society" />
+                <item
+                    android:id="@+id/menu_business"
+                    android:icon="@drawable/ic_subject_black_24dp"
+                    android:title="@string/business" />
+                <item
+                    android:id="@+id/menu_overseas"
+                    android:icon="@drawable/ic_subject_black_24dp"
+                    android:title="@string/overseas" />
+                <item
+                    android:id="@+id/menu_sport"
+                    android:icon="@drawable/ic_subject_black_24dp"
+                    android:title="@string/sports" />
+                <item
+                    android:id="@+id/menu_entame"
+                    android:icon="@drawable/ic_subject_black_24dp"
+                    android:title="@string/entame" />
+                <item
+                    android:id="@+id/menu_net"
+                    android:icon="@drawable/ic_subject_black_24dp"
+                    android:title="@string/net" />
+            </menu>
+        </item>
     </group>
+
+    <item android:title="@string/ranking">
+        <menu>
+            <item
+                android:id="@+id/menu_ranking_one"
+                android:icon="@drawable/ic_subject_black_24dp"
+                android:title="@string/hour" />
+            <item
+                android:id="@+id/menu_ranking_24"
+                android:icon="@drawable/ic_subject_black_24dp"
+                android:title="@string/hour_24" />
+        </menu>
+    </item>
+
+    <item android:title="@string/all_news">
+        <menu>
+            <item
+                android:id="@+id/menu_all_new"
+                android:icon="@drawable/ic_subject_black_24dp"
+                android:title="@string/all_news_new" />
+            <item
+                android:id="@+id/menu_all_comment_count"
+                android:icon="@drawable/ic_subject_black_24dp"
+                android:title="@string/all_news_comment_count" />
+            <item
+                android:id="@+id/menu_all_comment_new"
+                android:icon="@drawable/ic_subject_black_24dp"
+                android:title="@string/all_news_comment_new" />
+        </menu>
+    </item>
+
 
 </menu>
