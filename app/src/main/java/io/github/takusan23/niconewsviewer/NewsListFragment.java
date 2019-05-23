@@ -14,6 +14,7 @@ import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -51,7 +52,6 @@ public class NewsListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         itemList = new ArrayList<>();
         recyclerView = view.findViewById(R.id.news_recycleview);
         //ここから下三行必須
@@ -147,7 +147,8 @@ public class NewsListFragment extends Fragment {
                                     item.add(creatorList.get(i));
                                     itemList.add(item);
                                 }
-
+                                //最初はいらない
+                                itemList.remove(0);
                                 //更新
                                 newsRecyclerViewAdapter.notifyDataSetChanged();
                                 snackberProgress.dismissSnackberProgress();

@@ -33,4 +33,5 @@
     <string name="all_news_comment_new">Arrival order of comments</string>
     <string name="hour">Every hour</string>
     <string name="hour_24">24hours</string>
+    <string name="comment">Comment</string>
 </resources>

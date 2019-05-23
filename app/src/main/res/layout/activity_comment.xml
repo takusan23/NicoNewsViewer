@@ -7,8 +7,18 @@
     android:orientation="vertical"
     tools:context=".CommentActivity">
 
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/comment_recyclerview"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"></androidx.recyclerview.widget.RecyclerView>
+    <TextView
+        android:id="@+id/comment_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_comment_white_24dp"
+        android:drawableTint="#000000"
+        android:padding="10dp"
+        android:text="@string/comment" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/comment_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"></androidx.recyclerview.widget.RecyclerView>
 </LinearLayout>

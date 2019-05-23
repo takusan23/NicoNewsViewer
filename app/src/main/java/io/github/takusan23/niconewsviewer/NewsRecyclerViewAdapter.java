@@ -32,19 +32,21 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
     public void onBindViewHolder(@NonNull NewsRecyclerViewAdapter.ViewHolder holder, int position) {
         //冒頭を消す
         ArrayList<String> item = itemList.get(position);
-        //入れる
-        holder.title.setText(item.get(1) + "\n" + item.get(3));
-        int finalPosition = position;
-        //クリックイベント
-        if (item.get(0).contains("news_list")){
+        String memo = item.get(0);
+        //ニュースリスト
+        if (memo.contains("news_list")) {
+            holder.title.setText(item.get(1) + "\n" + item.get(3));
             holder.title.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent  = new Intent(v.getContext(),NewsActivity.class);
-                    intent.putExtra("link",item.get(2));
+                    Intent intent = new Intent(v.getContext(), NewsActivity.class);
+                    intent.putExtra("link", item.get(2));
                     v.getContext().startActivity(intent);
                 }
             });
+        }
+        if (memo.contains("comment")) {
+            holder.title.setText(item.get(1));
         }
     }
 

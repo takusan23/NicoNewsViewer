@@ -33,4 +33,5 @@
     <string name="all_news_new">新着順</string>
     <string name="hour_24">24時間</string>
     <string name="hour">毎時</string>
+    <string name="comment">コメント</string>
 </resources>

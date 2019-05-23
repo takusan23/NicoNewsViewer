@@ -2,11 +2,14 @@ package io.github.takusan23.niconewsviewer;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ShareCompat;
 
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -23,10 +26,15 @@ public class NewsActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private SnackberProgress snackberProgress;
     private CoordinatorLayout coordinatorLayout;
+    private DarkModeSupport darkModeSupport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        darkModeSupport = new DarkModeSupport(this);
+        darkModeSupport.setActivityTheme(this);
+
         setContentView(R.layout.activity_news);
 
         textView = findViewById(R.id.news_activity_textview);
@@ -40,9 +48,11 @@ public class NewsActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(NewsActivity.this,CommentActivity.class);
-                intent.putExtra("url", getIntent().getStringExtra("link"));
-                startActivity(intent);
+                Bundle bundle = new Bundle();
+                bundle.putString("url",getIntent().getStringExtra("link"));
+                CommentListBottomFragment commentListBottomFragment = new CommentListBottomFragment();
+                commentListBottomFragment.setArguments(bundle);
+                commentListBottomFragment.show(getSupportFragmentManager(),"comment_fragment");
             }
         });
     }
@@ -77,5 +87,38 @@ public class NewsActivity extends AppCompatActivity {
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.menu_share) {
+            ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
+            //ダイアログの名前
+            builder.setChooserTitle(getTitle());
+            //シェアするときのタイトル
+            builder.setSubject(getTitle().toString());
+            //本文
+            builder.setText(getIntent().getStringExtra("link"));
+            //今回は文字なので
+            builder.setType("text/plain");
+            //ダイアログ
+            builder.startChooser();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
 }

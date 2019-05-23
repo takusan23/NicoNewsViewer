@@ -6,7 +6,25 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
     </style>
+
+    <style name="DarkMode.NoActionBar" parent="Theme.AppCompat">
+        <item name="android:colorBackground">#000000</item>
+        <item name="colorPrimary">#000000</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:tint">#ffffff</item>
+    </style>
+
+    <style name="DarkMode" parent="Theme.AppCompat">
+        <item name="android:colorBackground">#000000</item>
+        <item name="colorPrimary">#000000</item>
+        <item name="android:tint">#ffffff</item>
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+    </style>
+
+    <drawable name="transparameter">#7f000000</drawable>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
@@ -16,5 +34,16 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+
+    <!-- https://stackoverflow.com/questions/43852562/round-corner-for-bottomsheetdialogfragment -->
+
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppModalStyle</item>
+    </style>
+
+    <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/corner_drawable</item>
+    </style>
 
 </resources>
