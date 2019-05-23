@@ -31,24 +31,27 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
     @Override
     public void onBindViewHolder(@NonNull NewsRecyclerViewAdapter.ViewHolder holder, int position) {
         //冒頭を消す
-        ArrayList<String> item = itemList.get(position += 1);
+        ArrayList<String> item = itemList.get(position);
         //入れる
         holder.title.setText(item.get(1) + "\n" + item.get(3));
         int finalPosition = position;
-        holder.title.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent  = new Intent(v.getContext(),NewsActivity.class);
-                intent.putExtra("link",item.get(2));
-                v.getContext().startActivity(intent);
-            }
-        });
+        //クリックイベント
+        if (item.get(0).contains("news_list")){
+            holder.title.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent  = new Intent(v.getContext(),NewsActivity.class);
+                    intent.putExtra("link",item.get(2));
+                    v.getContext().startActivity(intent);
+                }
+            });
+        }
     }
 
     @Override
     public int getItemCount() {
         //冒頭を消したのでその分引く
-        return (itemList.size() - 1);
+        return (itemList.size());
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

@@ -138,10 +138,10 @@ public class NewsListFragment extends Fragment {
                                 }
 
                                 //配列作成
-                                System.out.println(creatorList.size());
+                                //System.out.println(creatorList.size());
                                 for (int i = 0; i < creatorList.size(); i++) {
                                     ArrayList<String> item = new ArrayList<>();
-                                    item.add("");
+                                    item.add("news_list");
                                     item.add(titleList.get(i));
                                     item.add(linkList.get(i + 1));  //←ずれるので一個足した値を入れる
                                     item.add(creatorList.get(i));

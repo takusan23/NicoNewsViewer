@@ -1,13 +1,16 @@
 package io.github.takusan23.niconewsviewer;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
-import android.app.ActionBar;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
-import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,7 +20,9 @@ import java.io.IOException;
 public class NewsActivity extends AppCompatActivity {
 
     private TextView textView;
+    private FloatingActionButton fab;
     private SnackberProgress snackberProgress;
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,9 +30,21 @@ public class NewsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_news);
 
         textView = findViewById(R.id.news_activity_textview);
-        snackberProgress = new SnackberProgress(textView, this, getString(R.string.loading) + "\n" + getIntent().getStringExtra("link"));
+        fab = findViewById(R.id.fab);
+        coordinatorLayout = findViewById(R.id.news_activity_coordinator_layout);
+        snackberProgress = new SnackberProgress(coordinatorLayout, this, getString(R.string.loading) + "\n" + getIntent().getStringExtra("link"));
 
         getNews();
+
+        //Fabクリックイベント
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(NewsActivity.this,CommentActivity.class);
+                intent.putExtra("url", getIntent().getStringExtra("link"));
+                startActivity(intent);
+            }
+        });
     }
 
     /*しゅとくする*/
