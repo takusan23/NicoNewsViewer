@@ -96,12 +96,13 @@ public class CommentListBottomFragment extends BottomSheetDialogFragment {
                             for (int i = 0; i < elements.size(); i++) {
                                 //ぱーす
                                 String comment_text = elements.get(i).select("news-comment").select("div.news-comment-body").html();
+                                String createAt = elements.get(i).select("news-comment").select("ul.news-comment-metadata").select("li.news-comment-name").select("p.user-name").html();
                                 //入れる
                                 ArrayList<String> item = new ArrayList<>();
                                 item.add("comment");
                                 item.add(comment_text);
                                 item.add("");
-                                item.add("");
+                                item.add(createAt);
                                 itemList.add(item);
                             }
                             //setTitle(title);

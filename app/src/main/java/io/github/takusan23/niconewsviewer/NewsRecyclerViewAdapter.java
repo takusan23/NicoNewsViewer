@@ -2,6 +2,7 @@ package io.github.takusan23.niconewsviewer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +47,7 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
             });
         }
         if (memo.contains("comment")) {
-            holder.title.setText(item.get(1));
+            holder.title.setText(Html.fromHtml(item.get(3), Html.FROM_HTML_MODE_COMPACT) + "\n" + item.get(1));
         }
     }
 
