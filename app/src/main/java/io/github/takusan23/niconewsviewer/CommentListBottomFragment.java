@@ -1,9 +1,12 @@
 package io.github.takusan23.niconewsviewer;
 
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +36,8 @@ public class CommentListBottomFragment extends BottomSheetDialogFragment {
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
     private DarkModeSupport darkModeSupport;
     private TextView textView;
+    //Offline
+    private SharedPreferences pref_setting;
 
     @Nullable
     @Override
@@ -56,6 +61,7 @@ public class CommentListBottomFragment extends BottomSheetDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(getContext());
         url = getArguments().getString("url");
 
         itemList = new ArrayList<>();
@@ -70,7 +76,11 @@ public class CommentListBottomFragment extends BottomSheetDialogFragment {
         recyclerViewLayoutManager = recyclerView.getLayoutManager();
 
         //取得
-        getComment();
+        if (pref_setting.getBoolean("offline_mode", false)) {
+            getOfflineComment();
+        } else {
+            getComment();
+        }
 
     }
 
@@ -117,5 +127,43 @@ public class CommentListBottomFragment extends BottomSheetDialogFragment {
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
+    /*Offline*/
+    private void getOfflineComment() {
+        //取得
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... aVoid) {
+                String html = getArguments().getString("html");
+                Document document = Jsoup.parse(html);
+                //ぱーす
+                //commentだけ？
+                final Elements elements = document.getElementById("comments").select("div.is-floating-box").select("news-comment");
+                final String title = document.getElementsByTag("title").text();
+                //UIスレッド
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println(elements.size());
+                        for (int i = 0; i < elements.size(); i++) {
+                            //ぱーす
+                            String comment_text = elements.get(i).select("news-comment").select("div.news-comment-body").html();
+                            String name = elements.get(i).select("news-comment").select("ul.news-comment-metadata").select("li.news-comment-name").select("div.user-name").select("p").text();
+                            String createAt = elements.get(i).select("news-comment").select("ul.news-comment-metadata").select("li.news-comment-name").select("div.user-name").select("a").text();
+                            //入れる
+                            ArrayList<String> item = new ArrayList<>();
+                            item.add("comment");
+                            item.add(comment_text);
+                            item.add("");
+                            item.add(name + " " + createAt);
+                            itemList.add(item);
+                        }
+                        //setTitle(title);
+                        newsRecyclerViewAdapter.notifyDataSetChanged();
+                    }
+                });
+                return null;
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
 
 }

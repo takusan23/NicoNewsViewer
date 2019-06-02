@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/offline_menu"
+        android:icon="@drawable/ic_save_black_24dp"
+        android:title="オフライン用にニュースを保存する" />
+    <item
+        android:id="@+id/offline_mode"
+        android:checkable="true"
+        android:icon="@drawable/ic_signal_cellular_off_black_24dp"
+        android:title="オフラインモードを有効にする" />
+</menu>

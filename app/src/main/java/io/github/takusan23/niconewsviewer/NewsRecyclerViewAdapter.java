@@ -2,6 +2,8 @@ package io.github.takusan23.niconewsviewer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerViewAdapter.ViewHolder> {
 
     private ArrayList<ArrayList> itemList;
+    private SharedPreferences pref_setting;
 
     public NewsRecyclerViewAdapter(ArrayList<ArrayList> list) {
         itemList = list;
@@ -34,6 +37,7 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
         //冒頭を消す
         ArrayList<String> item = itemList.get(position);
         String memo = item.get(0);
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(holder.title.getContext());
         //ニュースリスト
         if (memo.contains("news_list")) {
             holder.title.setText(item.get(1) + "\n" + item.get(3));
@@ -42,6 +46,9 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
                 public void onClick(View v) {
                     Intent intent = new Intent(v.getContext(), NewsActivity.class);
                     intent.putExtra("link", item.get(2));
+                    if (pref_setting.getBoolean("offline_mode", false)) {
+                        intent.putExtra("html", item.get(4));
+                    }
                     v.getContext().startActivity(intent);
                 }
             });

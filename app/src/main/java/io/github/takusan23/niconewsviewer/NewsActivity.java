@@ -5,8 +5,10 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ShareCompat;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,11 +29,14 @@ public class NewsActivity extends AppCompatActivity {
     private SnackberProgress snackberProgress;
     private CoordinatorLayout coordinatorLayout;
     private DarkModeSupport darkModeSupport;
+    //Offline
+    private SharedPreferences pref_setting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(this);
         darkModeSupport = new DarkModeSupport(this);
         darkModeSupport.setActivityTheme(this);
 
@@ -40,19 +45,28 @@ public class NewsActivity extends AppCompatActivity {
         textView = findViewById(R.id.news_activity_textview);
         fab = findViewById(R.id.fab);
         coordinatorLayout = findViewById(R.id.news_activity_coordinator_layout);
-        snackberProgress = new SnackberProgress(coordinatorLayout, this, getString(R.string.loading) + "\n" + getIntent().getStringExtra("link"));
-
-        getNews();
+        String snackbar_text = getString(R.string.loading);
+        if (pref_setting.getBoolean("offline_mode", false)) {
+            setHTML();
+            snackbar_text += "\n" + "オフラインデータ";
+        } else {
+            getNews();
+            snackbar_text += "\n" + getIntent().getStringExtra("link");
+        }
+        snackberProgress = new SnackberProgress(coordinatorLayout, this, snackbar_text);
 
         //Fabクリックイベント
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
-                bundle.putString("url",getIntent().getStringExtra("link"));
+                bundle.putString("url", getIntent().getStringExtra("link"));
+                if (pref_setting.getBoolean("offline_mode", false)) {
+                    bundle.putString("html", getIntent().getStringExtra("html"));
+                }
                 CommentListBottomFragment commentListBottomFragment = new CommentListBottomFragment();
                 commentListBottomFragment.setArguments(bundle);
-                commentListBottomFragment.show(getSupportFragmentManager(),"comment_fragment");
+                commentListBottomFragment.show(getSupportFragmentManager(), "comment_fragment");
             }
         });
     }
@@ -83,6 +97,33 @@ public class NewsActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                return null;
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    /*ニュース*/
+    private void setHTML() {
+        //取得
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... aVoid) {
+                String html = getIntent().getStringExtra("html");
+
+                Document document = Jsoup.parse(html);
+                //ぱーす
+                final String text = document.select("section.article-body.news-article-body").html();
+                final String title = document.getElementsByTag("title").text();
+                //UIスレッド
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //入れる
+                        textView.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT));
+                        setTitle(title);
+                        snackberProgress.dismissSnackberProgress();
+                    }
+                });
                 return null;
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
