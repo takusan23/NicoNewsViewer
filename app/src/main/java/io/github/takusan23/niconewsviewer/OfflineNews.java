@@ -90,86 +90,90 @@ public class OfflineNews {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     final String response_string = response.body().string();
-                    ((AppCompatActivity) context).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!response.isSuccessful()) {
-                                Toast.makeText(context, context.getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
-                            } else {
-                                //RSSパース？
-                                try {
-                                    XmlPullParser xmlPullParser = Xml.newPullParser();
-                                    xmlPullParser.setInput(new StringReader(response_string));
-                                    int count = xmlPullParser.getEventType();
+                    if (!response.isSuccessful()) {
+                        showToast(context.getString(R.string.error) + "\n" + String.valueOf(response.code()));
+                    } else {
+                        //RSSパース？
+                        try {
+                            XmlPullParser xmlPullParser = Xml.newPullParser();
+                            xmlPullParser.setInput(new StringReader(response_string));
+                            int count = xmlPullParser.getEventType();
 
-                                    //一時保存
-                                    ArrayList<String> titleList = new ArrayList<>();
-                                    ArrayList<String> linkList = new ArrayList<>();
-                                    ArrayList<String> creatorList = new ArrayList<>();
+                            //一時保存
+                            ArrayList<String> titleList = new ArrayList<>();
+                            ArrayList<String> linkList = new ArrayList<>();
+                            ArrayList<String> creatorList = new ArrayList<>();
 
-                                    String name = null;
-                                    String title = null;
-                                    String link = null;
-                                    String creator = null;
+                            String name = null;
+                            String title = null;
+                            String link = null;
+                            String creator = null;
 
-                                    while (count != XmlPullParser.END_DOCUMENT) {
-                                        if (count == XmlPullParser.START_TAG) {
-                                            //要素名
-                                            name = xmlPullParser.getName();
-                                        } else if (count == XmlPullParser.TEXT) {
-                                            //中身を持ってくる
-                                            if (name.equals("title")) {
-                                                title = xmlPullParser.getText();
-                                                titleList.add(title);
-                                            }
-                                            if (name.equals("link")) {
-                                                link = xmlPullParser.getText();
-                                                linkList.add(link);
-                                            }
-                                            if (name.equals("creator")) {
-                                                creator = xmlPullParser.getText();
-                                                creatorList.add(creator);
-                                            }
-                                            name = "";
-                                        }
-                                        count = xmlPullParser.next();
+                            while (count != XmlPullParser.END_DOCUMENT) {
+                                if (count == XmlPullParser.START_TAG) {
+                                    //要素名
+                                    name = xmlPullParser.getName();
+                                } else if (count == XmlPullParser.TEXT) {
+                                    //中身を持ってくる
+                                    if (name.equals("title")) {
+                                        title = xmlPullParser.getText();
+                                        titleList.add(title);
                                     }
-
-                                    //配列作成
-                                    for (int i = 1; i < creatorList.size(); i++) {
-                                        ArrayList<String> item = new ArrayList<>();
-                                        item.add("news_list");
-                                        title_List.add(titleList.get(i));
-                                        html_url_List.add(linkList.get(i + 1));  //←ずれるので一個足した値を入れる
-                                        category_List.add(category[finalNews_count]);
-                                        creator_List.add(creatorList.get(i));
-                                        link_List.add(linkList.get(i));
+                                    if (name.equals("link")) {
+                                        link = xmlPullParser.getText();
+                                        linkList.add(link);
                                     }
-
-                                    //for文終了した？
-                                    if (finalNews_count == 6) {
-                                        //ニュース記事HTML取得
-                                        getNewsHTML();
-                                        //DB保存
-                                        //insertNews();
+                                    if (name.equals("creator")) {
+                                        creator = xmlPullParser.getText();
+                                        creatorList.add(creator);
                                     }
-
-                                } catch (XmlPullParserException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                                    name = "";
                                 }
+                                count = xmlPullParser.next();
                             }
+
+                            //配列作成
+                            for (int i = 1; i < creatorList.size(); i++) {
+                                ArrayList<String> item = new ArrayList<>();
+                                item.add("news_list");
+                                title_List.add(titleList.get(i));
+                                html_url_List.add(linkList.get(i + 1));  //←ずれるので一個足した値を入れる
+                                category_List.add(category[finalNews_count]);
+                                creator_List.add(creatorList.get(i));
+                                link_List.add(linkList.get(i));
+                            }
+
+                            //for文終了した？
+                            if (finalNews_count == 6) {
+                                //ニュース記事HTML取得
+                                getNewsHTML();
+                                //DB保存
+                                //insertNews();
+                            }
+
+                        } catch (XmlPullParserException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                    });
+                    }
                 }
             });
         }
 
     }
 
+    private void showToast(String message) {
+        ((AppCompatActivity) context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void getNewsHTML() {
-        Toast.makeText(context, "各ニュースのHTMLデータ取得開始 : " + category_List.size() + " 件", Toast.LENGTH_SHORT).show();
+        showToast("各ニュースのHTMLデータ取得開始 : " + category_List.size() + " 件");
         for (int i = 0; i < category_List.size(); i++) {
             System.out.println("進捗 : " + String.valueOf(i));
             Request request = new Request.Builder()
@@ -197,9 +201,7 @@ public class OfflineNews {
                 }
             });
         }
-
-        Toast.makeText(context, "HTML取得が終わりました。総数 : " + category_List.size() + " 件", Toast.LENGTH_SHORT).show();
-
+        showToast("HTML取得が終わりました。総数 : " + category_List.size() + " 件");
     }
 
     private void insertNews() {
