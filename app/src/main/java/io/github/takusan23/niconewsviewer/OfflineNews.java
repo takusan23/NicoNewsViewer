@@ -1,5 +1,8 @@
 package io.github.takusan23.niconewsviewer;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -26,10 +29,13 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static android.content.Context.NOTIFICATION_SERVICE;
+
 public class OfflineNews {
     private Context context;
     private NewsSQLiteDataBase newsSQLiteDataBase;
     private SQLiteDatabase sqLiteDatabase;
+    private NotificationManager notificationManager;
 
     private ArrayList<String> title_List;
     private ArrayList<String> category_List;
@@ -63,7 +69,8 @@ public class OfflineNews {
     }
 
     private void getNicoNewsHTMLtoDB() {
-        Toast.makeText(context, "RSSデータ取得開始", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context, "RSSデータ取得開始", Toast.LENGTH_SHORT).show();
+        showNotification("RSS取得開始");
         System.out.println("RSSデータ取得開始");
         String url[] = {"10", "20", "30", "40", "50", "60", "70"};
         String category[] = {"政治", "ビジネス", "海外", "スポーツ", "エンタメ", "ネット", "ゲーム"};
@@ -173,7 +180,7 @@ public class OfflineNews {
     }
 
     private void getNewsHTML() {
-        showToast("各ニュースのHTMLデータ取得開始 : " + category_List.size() + " 件");
+        showNotification("各ニュースのHTMLデータ取得開始 : " + category_List.size() + " 件");
         for (int i = 0; i < category_List.size(); i++) {
             System.out.println("進捗 : " + String.valueOf(i));
             Request request = new Request.Builder()
@@ -198,10 +205,11 @@ public class OfflineNews {
                     values.put("link", link_List.get(finalI));
                     values.put("html", response.body().string());
                     sqLiteDatabase.insert("newsdb", null, values);
+                    showProgressNotification(finalI);
                 }
             });
         }
-        showToast("HTML取得が終わりました。総数 : " + category_List.size() + " 件");
+        showNotification("HTML取得が終わりました。総数 : " + category_List.size() + " 件");
     }
 
     private void insertNews() {
@@ -214,4 +222,58 @@ public class OfflineNews {
             sqLiteDatabase.insert("newsdb", null, values);
         }
     }
+
+    /*通知作成*/
+    private void showNotification(String message){
+        String notification_channel = "niconews_offline_progress";
+         notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+
+        //通知ちゃんねる
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            if (notificationManager.getNotificationChannel(notification_channel)==null){
+                NotificationChannel notificationChannel = new NotificationChannel(notification_channel,"offline_progress_notification",NotificationManager.IMPORTANCE_HIGH);
+                notificationChannel.setName("オフライン進捗通知");
+                notificationChannel.setDescription("進捗状況を通知します");
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+            Notification.Builder builder = new Notification.Builder(context,notification_channel)
+                    .setContentTitle("オフライン準備進捗")
+                    .setSmallIcon(R.drawable.ic_file_download_black_24dp)
+                    .setContentText(message);
+            notificationManager.notify(R.string.app_name,builder.build());
+        }else{
+            Notification.Builder builder = new Notification.Builder(context)
+                    .setContentTitle("オフライン準備進捗")
+                    .setSmallIcon(R.drawable.ic_file_download_black_24dp)
+                    .setContentText(message);
+            notificationManager.notify(R.string.app_name,builder.build());
+        }
+    }
+
+    private void showProgressNotification(int progress){
+        String notification_channel = "niconews_offline_progress";
+        //通知ちゃんねる
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            if (notificationManager.getNotificationChannel(notification_channel)==null){
+                NotificationChannel notificationChannel = new NotificationChannel(notification_channel,"offline_progress_notification",NotificationManager.IMPORTANCE_HIGH);
+                notificationChannel.setName("オフライン進捗通知");
+                notificationChannel.setDescription("進捗状況を通知します");
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+            Notification.Builder builder = new Notification.Builder(context,notification_channel)
+                    .setContentTitle("オフライン準備進捗")
+                    .setSmallIcon(R.drawable.ic_file_download_black_24dp)
+                    .setProgress(category_List.size(),progress,false)
+                    .setContentText("HTML取得進捗");
+            notificationManager.notify(R.string.app_name,builder.build());
+        }else{
+            Notification.Builder builder = new Notification.Builder(context)
+                    .setContentTitle("オフライン準備進捗")
+                    .setSmallIcon(R.drawable.ic_file_download_black_24dp)
+                    .setProgress(category_List.size(),progress,false)
+                    .setContentText("HTML取得進捗");
+            notificationManager.notify(R.string.app_name,builder.build());
+        }
+    }
+
 }
