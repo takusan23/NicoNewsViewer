@@ -138,7 +138,7 @@ public class OfflineNews {
                                     ArrayList<String> item = new ArrayList<>();
                                     item.add("news_list");
                                     title_List.add(titleList.get(i));
-                                    html_url_List.add(linkList.get(i + 1));  //←ずれるので一個足した値を入れる
+                                    html_url_List.add(linkList.get(i));
                                     category_List.add(category[finalNews_count]);
                                     creator_List.add(creatorList.get(i));
                                     link_List.add(linkList.get(i));
@@ -173,7 +173,7 @@ public class OfflineNews {
         });
     }
 
-    private void getNewsHTML() {
+    private void getNewsHTML_a() {
         showNotification("各ニュースのHTMLデータ取得開始 : " + category_List.size() + " 件");
         System.out.println("各ニュースのHTMLデータ取得開始 : " + category_List.size() + " 件");
         showProgressNotification();
@@ -216,7 +216,50 @@ public class OfflineNews {
                 super.onPostExecute(aVoid);
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
 
+    private void getNewsHTML() {
+        showNotification("各ニュースのHTMLデータ取得開始 : " + category_List.size() + " 件");
+        System.out.println("各ニュースのHTMLデータ取得開始 : " + category_List.size() + " 件");
+        showProgressNotification();
+        for (int i = 0; i < category_List.size(); i++) {
+            int finalI = i;
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... aVoid) {
+                    System.out.println("進捗 : " + String.valueOf(finalI + 1));
+                    setNotificationProgress(finalI + 1);
+                    Request request = new Request.Builder()
+                            .url(html_url_List.get(finalI))
+                            .get()
+                            .build();
+                    OkHttpClient okHttpClient = new OkHttpClient();
+                    try {
+                        Response response = okHttpClient.newCall(request).execute();
+                        if (!response.isSuccessful()) {
+                            showToast(context.getString(R.string.error) + "\n" + String.valueOf(response.code()));
+                        } else {
+                            int position = html_url_List.indexOf(html_url_List.get(finalI));
+                            ContentValues values = new ContentValues();
+                            values.put("memo", "");
+                            values.put("title", title_List.get(position));
+                            values.put("category", category_List.get(position));
+                            values.put("creator", creator_List.get(position));
+                            values.put("link", link_List.get(position));
+                            values.put("html", response.body().string());
+                            sqLiteDatabase.insert("newsdb", null, values);
+                            if (category_List.size() == finalI + 1) {
+                                showNotification("HTML取得が終わりました。総数 : " + category_List.size() + " 件");
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            System.out.println(i);
+        }
     }
 
     private void insertNews() {
