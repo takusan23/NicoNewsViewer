@@ -165,7 +165,7 @@ public class NewsListFragment extends Fragment {
                                     ArrayList<String> item = new ArrayList<>();
                                     item.add("news_list");
                                     item.add(titleList.get(i));
-                                    item.add(linkList.get(i));  //←ずれるので一個足した値を入れる
+                                    item.add(linkList.get(i + 1));  //←ずれるので一個足した値を入れる
                                     item.add(creatorList.get(i));
                                     itemList.add(item);
                                 }

@@ -138,7 +138,7 @@ public class OfflineNews {
                                     ArrayList<String> item = new ArrayList<>();
                                     item.add("news_list");
                                     title_List.add(titleList.get(i));
-                                    html_url_List.add(linkList.get(i));
+                                    html_url_List.add(linkList.get(i + 1));  //←ずれるので一個足した値を入れる
                                     category_List.add(category[finalNews_count]);
                                     creator_List.add(creatorList.get(i));
                                     link_List.add(linkList.get(i));
