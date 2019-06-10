@@ -15,6 +15,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -23,6 +26,8 @@ import java.io.StringReader;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.logging.Handler;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -45,6 +50,8 @@ public class OfflineNews {
     private ArrayList<String> html_List;
     private ArrayList<String> link_List;
     private ArrayList<String> creator_List;
+
+    private int download_progress = 0;
 
     public OfflineNews(Context context) {
         this.context = context;
@@ -95,60 +102,35 @@ public class OfflineNews {
                             showToast(context.getString(R.string.error) + "\n" + String.valueOf(response.code()));
                         } else {
                             //RSSパース？
-                            try {
-                                XmlPullParser xmlPullParser = Xml.newPullParser();
-                                xmlPullParser.setInput(new StringReader(response_string));
-                                int count = xmlPullParser.getEventType();
-
-                                //一時保存
-                                ArrayList<String> titleList = new ArrayList<>();
-                                ArrayList<String> linkList = new ArrayList<>();
-                                ArrayList<String> creatorList = new ArrayList<>();
-
-                                String name = null;
-                                String title = null;
-                                String link = null;
-                                String creator = null;
-
-                                while (count != XmlPullParser.END_DOCUMENT) {
-                                    if (count == XmlPullParser.START_TAG) {
-                                        //要素名
-                                        name = xmlPullParser.getName();
-                                    } else if (count == XmlPullParser.TEXT) {
-                                        //中身を持ってくる
-                                        if (name.equals("title")) {
-                                            title = xmlPullParser.getText();
-                                            titleList.add(title);
-                                        }
-                                        if (name.equals("link")) {
-                                            link = xmlPullParser.getText();
-                                            linkList.add(link);
-                                        }
-                                        if (name.equals("creator")) {
-                                            creator = xmlPullParser.getText();
-                                            creatorList.add(creator);
-                                        }
-                                        name = "";
-                                    }
-                                    count = xmlPullParser.next();
+                            //RSSパース？
+                            //一時保存
+                            ArrayList<String> titleList = new ArrayList<>();
+                            ArrayList<String> linkList = new ArrayList<>();
+                            ArrayList<String> creatorList = new ArrayList<>();
+                            //HTMLぱーす（RSSだけど
+                            Document document = Jsoup.parse(response_string);
+                            Elements items = document.getElementsByTag("item");
+                            for (int i = 0; i < items.size(); i++) {
+                                titleList.add(items.get(i).getElementsByTag("title").text());
+                                creatorList.add(items.get(i).getElementsByTag("dc:creator").text());
+                                // URL とれない　→　正規表現
+                                String pattern = "https://news.nicovideo.jp/watch/nw([0-9]+)";
+                                Matcher matcher = Pattern.compile(pattern).matcher(items.get(i).text());
+                                if (matcher.find()) {
+                                    linkList.add(matcher.group());
                                 }
-
-                                //配列作成
-                                for (int i = 1; i < creatorList.size(); i++) {
-                                    ArrayList<String> item = new ArrayList<>();
-                                    item.add("news_list");
-                                    title_List.add(titleList.get(i));
-                                    html_url_List.add(linkList.get(i + 1));  //←ずれるので一個足した値を入れる
-                                    category_List.add(category[finalNews_count]);
-                                    creator_List.add(creatorList.get(i));
-                                    link_List.add(linkList.get(i));
-                                }
-
-                            } catch (XmlPullParserException e) {
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                e.printStackTrace();
                             }
+                            //配列作成
+                            for (int i = 1; i < linkList.size(); i++) {
+                                ArrayList<String> item = new ArrayList<>();
+                                item.add("news_list");
+                                title_List.add(titleList.get(i));
+                                html_url_List.add(linkList.get(i));  //←ずれるので一個足した値を入れる
+                                category_List.add(category[finalNews_count]);
+                                creator_List.add(creatorList.get(i));
+                                link_List.add(linkList.get(i));
+                            }
+
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -228,7 +210,6 @@ public class OfflineNews {
                 @Override
                 protected Void doInBackground(Void... aVoid) {
                     System.out.println("進捗 : " + String.valueOf(finalI + 1));
-                    setNotificationProgress(finalI + 1);
                     Request request = new Request.Builder()
                             .url(html_url_List.get(finalI))
                             .get()
@@ -248,9 +229,16 @@ public class OfflineNews {
                             values.put("link", link_List.get(position));
                             values.put("html", response.body().string());
                             sqLiteDatabase.insert("newsdb", null, values);
-                            if (category_List.size() == finalI + 1) {
-                                showNotification("HTML取得が終わりました。総数 : " + category_List.size() + " 件");
-                            }
+                            download_progress += 1;
+                            ((AppCompatActivity) context).runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    setNotificationProgress(download_progress);
+                                    if (category_List.size() == download_progress) {
+                                        showNotification("HTML取得が終わりました。総数 : " + category_List.size() + " 件");
+                                    }
+                                }
+                            });
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -281,7 +269,7 @@ public class OfflineNews {
         //通知ちゃんねる
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             if (notificationManager.getNotificationChannel(notification_channel) == null) {
-                NotificationChannel notificationChannel = new NotificationChannel(notification_channel, "offline_progress_notification", NotificationManager.IMPORTANCE_HIGH);
+                NotificationChannel notificationChannel = new NotificationChannel(notification_channel, "offline_progress_notification", NotificationManager.IMPORTANCE_DEFAULT);
                 notificationChannel.setName("オフライン進捗通知");
                 notificationChannel.setDescription("進捗状況を通知します");
                 notificationManager.createNotificationChannel(notificationChannel);
@@ -311,21 +299,22 @@ public class OfflineNews {
                 notificationManager.createNotificationChannel(notificationChannel);
             }
             progress_Builder = new Notification.Builder(context, notification_channel)
-                    .setContentTitle("オフライン準備進捗")
+                    .setContentTitle("HTML取得進捗 : " + category_List.size() + " 件")
                     .setSmallIcon(R.drawable.ic_file_download_black_24dp)
-                    .setContentText("HTML取得進捗");
+                    .setContentText("");
             notificationManager.notify(R.string.app_name, progress_Builder.build());
         } else {
             progress_Builder = new Notification.Builder(context)
-                    .setContentTitle("オフライン準備進捗")
+                    .setContentTitle("HTML取得進捗 : " + category_List.size() + " 件")
                     .setSmallIcon(R.drawable.ic_file_download_black_24dp)
-                    .setContentText("HTML取得進捗");
+                    .setContentText("");
             notificationManager.notify(R.string.app_name, progress_Builder.build());
         }
     }
 
     private void setNotificationProgress(int progress) {
         progress_Builder.setProgress(category_List.size(), progress, false);
+        progress_Builder.setContentText(download_progress + " 件");
         notificationManager.notify(R.string.app_name, progress_Builder.build());
     }
 
