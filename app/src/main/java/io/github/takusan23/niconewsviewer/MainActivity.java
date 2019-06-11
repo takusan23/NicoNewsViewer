@@ -47,17 +47,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-/*
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-*/
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -65,6 +54,10 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+        //最後開いたのを読み込む
+        if (pref_setting.getString("last_page_url", null) != null) {
+            setNewsFragment(pref_setting.getString("last_page_url", null), pref_setting.getString("last_page_category", null));
+        }
     }
 
     @Override
@@ -168,5 +161,10 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.content_linearlayout, newsListFragment);
         fragmentTransaction.commit();
+        //最後に開いたFragmentを記憶する
+        SharedPreferences.Editor editor = pref_setting.edit();
+        editor.putString("last_page_url", url);
+        editor.putString("last_page_category", category);
+        editor.apply();
     }
 }
